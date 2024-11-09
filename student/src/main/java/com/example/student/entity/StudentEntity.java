@@ -28,3 +28,20 @@ public class StudentEntity {
     @Column(nullable = false)
     private String password; // Added password field
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

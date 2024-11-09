@@ -19,10 +19,9 @@ public class StudentController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerStudent(@RequestBody StudentEntity student) {
-        // Process registration logic (e.g., saving to database)
+        studentService.registerStudent(student); // Save student in database
         return ResponseEntity.ok("Registration successful");
     }
-
 
     @PostMapping("/login")
     public Optional<StudentEntity> loginStudent(@RequestBody LoginRequest loginRequest) {

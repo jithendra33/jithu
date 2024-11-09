@@ -22,7 +22,7 @@ public class StudentService {
         if (studentRepository.findByEmail(student.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email already registered.");
         }
-        return studentRepository.save(student);
+        return studentRepository.save(student); // Save the student entity to the database
     }
 
     public Optional<StudentEntity> loginStudent(String email, String password) {
