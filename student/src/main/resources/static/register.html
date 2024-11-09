@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration</title>
+    <style>
+        /* Center the form container */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+        }
+
+        /* Form styling */
+        #registrationForm {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        #registrationForm h2 {
+            margin-bottom: 20px;
+        }
+
+        label, input {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #registerMessage {
+            color: green;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* Style for login button */
+        #loginBtn {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            display: block;
+            width: 100%;
+        }
+
+        #loginBtn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="registrationForm">
+        <h2>Student Registration</h2>
+        <form>
+            <label for="regName">Name:</label>
+            <input type="text" id="regName" required>
+
+            <label for="regEmail">Email:</label>
+            <input type="email" id="regEmail" required>
+
+            <label for="regPassword">Password:</label>
+            <input type="password" id="regPassword" required>
+
+            <button type="button" onclick="register()">Register</button>
+        </form>
+        <p id="registerMessage" style="display: none;">Registration successful! Redirecting to login...</p>
+        
+        <!-- Login Button -->
+        <button id="loginBtn" onclick="redirectToLogin()">Go to Login</button>
+    </div>
+
+    <script>
+        // Registration function
+        async function register() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            console.log("Register button clicked. Sending request...");
+
+            try {
+                const response = await fetch('http://localhost:8080/students/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                console.log("Response status:", response.status);  // Check response status
+                console.log("Response body:", await response.text());  // Log response body
+
+                if (response.ok) {
+                    console.log("Registration successful.");
+                    document.getElementById('registerMessage').style.display = 'block';
+                    document.getElementById('registrationForm').reset();
+                    // Wait for the message to appear and then redirect
+                    setTimeout(() => {
+                        console.log("Redirecting to login...");
+                        window.location.href = '/login.html';  // Redirect to login page
+                    }, 2000); // 2 seconds delay
+                } else {
+                    console.log("Registration failed with status:", response.status);
+                    alert('Registration failed. Please try again.');
+                }
+            } catch (error) {
+                console.error("Error during registration:", error);
+                alert('Error during registration. Please try again.');
+            }
+        }
+
+        // Redirect to login page immediately
+        function redirectToLogin() {
+            console.log("");
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+</html>
