@@ -1,11 +1,14 @@
 package com.example.student.entity;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
+
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
 @RestController
 @RequestMapping("/students")
 public class StudentController {
@@ -18,8 +21,14 @@ public class StudentController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerStudent(@RequestBody StudentEntity student) {
-        studentService.registerStudent(student); // Save student in database
+    public ResponseEntity<String> registerStudent(@Valid @RequestBody StudentEntity student, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // Return the error message if validation fails
+            String errorMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);  // Return error message
+        }
+
+        studentService.registerStudent(student); // Save student in the database
         return ResponseEntity.ok("Registration successful");
     }
 
@@ -27,7 +36,4 @@ public class StudentController {
     public Optional<StudentEntity> loginStudent(@RequestBody LoginRequest loginRequest) {
         return studentService.loginStudent(loginRequest.getEmail(), loginRequest.getPassword());
     }
-
-
-    // Existing endpoints...
 }

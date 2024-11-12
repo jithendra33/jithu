@@ -63,12 +63,32 @@
             color: green;
             margin-top: 15px;
             font-weight: bold;
+            display: none;
         }
 
         #errorMessage {
             color: red;
             margin-top: 15px;
             font-weight: bold;
+            display: none;
+        }
+
+        /* Welcome message and image styling */
+        #welcomeSection {
+            text-align: center;
+            display: none;
+        }
+
+        #welcomeSection h1 {
+            color: #333;
+        }
+
+        #welcomeSection img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -85,8 +105,13 @@
             <button type="button" onclick="login()">Login</button>
         </form>
         
-        <p id="loginMessage" style="color: green; display: none;">Login successful!</p>
-        <p id="errorMessage" style="color: red; display: none;">Invalid credentials. Please try again.</p>
+        <p id="loginMessage">Login successful!</p>
+        <p id="errorMessage">Invalid credentials. Please try again.</p>
+    </div>
+
+    <div id="welcomeSection">
+        <h1>Welcome to SVCET College</h1>
+        <img src="https://svcet.in/" alt="Welcome Image">
     </div>
 
     <script>
@@ -94,25 +119,35 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            const response = await fetch('http://localhost:8080/students/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
+            try {
+                const response = await fetch('http://localhost:8080/students/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
 
-            if (response.ok) {
-                const result = await response.json();
-                if (result) {
-                    document.getElementById('loginMessage').style.display = 'block';
-                    document.getElementById('errorMessage').style.display = 'none';
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result) {
+                        // Hide login form and show welcome message
+                        document.getElementById('loginForm').style.display = 'none';
+                        document.getElementById('loginMessage').style.display = 'none';
+                        document.getElementById('welcomeSection').style.display = 'block';
+
+                        // Redirect to the SVCET website after a successful login
+                        window.location.href = "https://svcet.in/";  // Redirect to the specified website
+                    } else {
+                        document.getElementById('loginMessage').style.display = 'none';
+                        document.getElementById('errorMessage').style.display = 'block';
+                    }
                 } else {
                     document.getElementById('loginMessage').style.display = 'none';
                     document.getElementById('errorMessage').style.display = 'block';
                 }
-            } else {
-                document.getElementById('loginMessage').style.display = 'none';
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'An error occurred. Please try again.';
                 document.getElementById('errorMessage').style.display = 'block';
             }
         }

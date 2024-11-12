@@ -1,7 +1,5 @@
 package com.example.student.entity;
 
-
-import com.example.student.entity.StudentEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,20 +16,34 @@ public class StudentService {
     }
 
     public StudentEntity registerStudent(StudentEntity student) {
-        // Check if email already exists
+        // Validate email: Only Gmail accounts are allowed
+        if (student.getEmail() == null || !student.getEmail().endsWith("@gmail.com")) {
+            throw new IllegalArgumentException("Only Gmail accounts are allowed.");
+        }
+
+        // Check if the email is already registered
         if (studentRepository.findByEmail(student.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email already registered.");
         }
-        return studentRepository.save(student); // Save the student entity to the database
+
+        // Manually validate password if annotation-based validation is not working
+        if (!student.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$")) {
+            throw new IllegalArgumentException("Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@, $, !, %, *, ?, &).");
+        }
+
+        // Save student to the database
+        return studentRepository.save(student);
     }
 
     public Optional<StudentEntity> loginStudent(String email, String password) {
+        // Find student by email
         Optional<StudentEntity> student = studentRepository.findByEmail(email);
+
+        // Validate password for login
         if (student.isPresent() && student.get().getPassword().equals(password)) {
             return student; // Successful login
         }
+
         return Optional.empty(); // Login failed
     }
-
-    // Existing methods...
 }

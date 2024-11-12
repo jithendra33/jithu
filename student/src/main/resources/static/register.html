@@ -24,6 +24,7 @@
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
             width: 300px;
             text-align: center;
+            position: relative;
         }
 
         #registrationForm h2 {
@@ -37,10 +38,27 @@
             text-align: left;
         }
 
-        input {
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 8px;
+            cursor: pointer;
             font-size: 16px;
         }
 
@@ -59,10 +77,18 @@
             background-color: #45a049;
         }
 
+        /* Error and success messages */
+        #registerMessage, #errorMessage {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
         #registerMessage {
             color: green;
-            margin-top: 15px;
-            font-weight: bold;
+        }
+
+        #errorMessage {
+            color: red;
         }
 
         /* Style for login button */
@@ -88,7 +114,7 @@
 <body>
     <div id="registrationForm">
         <h2>Student Registration</h2>
-        <form>
+        <form id="form">
             <label for="regName">Name:</label>
             <input type="text" id="regName" required>
 
@@ -96,24 +122,63 @@
             <input type="email" id="regEmail" required>
 
             <label for="regPassword">Password:</label>
-            <input type="password" id="regPassword" required>
+            <div class="input-wrapper">
+                <input type="password" id="regPassword" required>
+                <span class="toggle-password" onclick="togglePassword()">👁️</span>
+            </div>
 
             <button type="button" onclick="register()">Register</button>
         </form>
-        <p id="registerMessage" style="display: none;">Registration successful! Redirecting to login...</p>
+        <p id="registerMessage" style="display: none;">Registration successful!</p>
+        <p id="errorMessage" style="display: none;"></p>
         
         <!-- Login Button -->
         <button id="loginBtn" onclick="redirectToLogin()">Go to Login</button>
     </div>
 
     <script>
-        // Registration function
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordField = document.getElementById('regPassword');
+            const toggleIcon = document.querySelector('.toggle-password');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.textContent = '🙈'; // Change icon to indicate visibility
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.textContent = '👁️'; // Change icon to indicate hidden
+            }
+        }
+
+        // Improved email validation function
+        function validateEmail(email) {
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;  // Regex for general email format
+            return emailPattern.test(email);  // Checks the email against the regex pattern
+        }
+
+        // Registration function with validation
         async function register() {
             const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
 
-            console.log("Register button clicked. Sending request...");
+            // Clear previous messages
+            document.getElementById('registerMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+
+            // Check if email is in the correct format
+            if (!validateEmail(email)) {
+                document.getElementById('errorMessage').textContent = 'Please enter a valid email address.';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;  // Stop further form submission
+            }
+
+            // Check password length
+            if (password.length < 6) {
+                document.getElementById('errorMessage').textContent = 'Password must be at least 6 characters long.';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
 
             try {
                 const response = await fetch('http://localhost:8080/students/register', {
@@ -124,31 +189,22 @@
                     body: JSON.stringify({ name, email, password })
                 });
 
-                console.log("Response status:", response.status);  // Check response status
-                console.log("Response body:", await response.text());  // Log response body
-
                 if (response.ok) {
-                    console.log("Registration successful.");
                     document.getElementById('registerMessage').style.display = 'block';
-                    document.getElementById('registrationForm').reset();
-                    // Wait for the message to appear and then redirect
-                    setTimeout(() => {
-                        console.log("Redirecting to login...");
-                        window.location.href = '/login.html';  // Redirect to login page
-                    }, 2000); // 2 seconds delay
+                    document.getElementById('form').style.display = 'none'; // Hide the form fields
+                    document.getElementById('registerMessage').textContent = 'Registration successful!';
                 } else {
-                    console.log("Registration failed with status:", response.status);
-                    alert('Registration failed. Please try again.');
+                    document.getElementById('errorMessage').textContent = 'Registration failed. Please try again.';
+                    document.getElementById('errorMessage').style.display = 'block';
                 }
             } catch (error) {
-                console.error("Error during registration:", error);
-                alert('Error during registration. Please try again.');
+                document.getElementById('errorMessage').textContent = 'Error during registration. Please try again.';
+                document.getElementById('errorMessage').style.display = 'block';
             }
         }
 
         // Redirect to login page immediately
         function redirectToLogin() {
-            console.log("");
             window.location.href = '/login.html';
         }
     </script>
