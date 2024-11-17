@@ -23,12 +23,12 @@ public class StudentController {
     @PostMapping("/register")
     public ResponseEntity<String> registerStudent(@Valid @RequestBody StudentEntity student, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            // Return the error message if validation fails
+            
             String errorMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);  // Return error message
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);  
         }
 
-        studentService.registerStudent(student); // Save student in the database
+        studentService.registerStudent(student); 
         return ResponseEntity.ok("Registration successful");
     }
 
